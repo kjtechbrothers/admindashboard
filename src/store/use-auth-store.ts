@@ -36,7 +36,10 @@ export const useAuthStore = create<AuthState>()(
             user: { name: ADMIN_USER.name, email, role: "Admin" }, 
             isAuthenticated: true 
           });
-        } else {
+        }   else if (email === "viewer@digitalsoft.com" && password === "viewer123") {
+         set({ user: { name: "Guest Viewer", email, role: "Viewer" }, isAuthenticated: true });
+       }
+        else {
           // 3. Throw an error if credentials don't match
           throw new Error("Invalid email or password");
         }
