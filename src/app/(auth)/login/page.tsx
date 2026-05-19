@@ -40,20 +40,20 @@ export default function LoginPage() {
     <div className="h-screen w-full flex overflow-hidden">
       {/* LEFT — branding panel (Existing high-end code) */}
       <div className="hidden lg:flex flex-col justify-between w-[52%] bg-[#060612] p-12 relative overflow-hidden">
-        <div className="absolute top-[-80px] left-[-80px] w-[420px] h-[420px] bg-indigo-700/30 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-[360px] h-[360px] bg-violet-700/25 rounded-full blur-[100px]" />
+        <div className="absolute -top-20 -left-20 w-105 h-105 bg-indigo-700/30 rounded-full blur-[100px]" />
+        <div className="absolute -bottom-15 -right-15 w-90 h-90 bg-violet-700/25 rounded-full blur-[100px]" />
         <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
         
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/40">
+          <div className="w-9 h-9 rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/40">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <span className="text-white font-semibold tracking-tight">DigitalSoft ERP</span>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative z-10">
-          <div className="w-10 h-[2px] bg-indigo-500 mb-6" />
-          <h2 className="text-4xl font-bold text-white leading-tight tracking-tight mb-4">Everything your<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">business needs.</span></h2>
+          <div className="w-10 h-0.5 bg-indigo-500 mb-6" />
+          <h2 className="text-4xl font-bold text-white leading-tight tracking-tight mb-4">Everything your<br /><span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-violet-400">business needs.</span></h2>
           <p className="text-white/40 text-sm leading-relaxed max-w-xs">Multi-tenant cloud ERP with real-time analytics, AI insights, and role-based access — all in one place.</p>
         </motion.div>
         <p className="relative z-10 text-white/20 text-xs">© 2025 DigitalSoft Cloud</p>
@@ -61,9 +61,9 @@ export default function LoginPage() {
 
       {/* RIGHT — form */}
       <div className="flex-1 flex items-center justify-center px-8 relative overflow-hidden" style={{ background: "radial-gradient(ellipse at 60% 20%, #1a0533 0%, #0d0d1a 40%, #060612 100%)" }}>
-        <div className="absolute left-0 top-[20%] h-[60%] w-px bg-gradient-to-b from-transparent via-indigo-500/30 to-transparent" />
+        <div className="absolute left-0 top-[20%] h-[60%] w-px bg-linear-to-b from-transparent via-indigo-500/30 to-transparent" />
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-[360px] relative z-10">
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-90 relative z-10">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-white tracking-tight">Sign in</h1>
             <p className="text-white/40 text-sm mt-1">Access your admin dashboard</p>
@@ -72,15 +72,15 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-white/50 text-xs uppercase tracking-widest font-medium">Email</Label>
-              <Input type="email" placeholder="admin@digitalsoft.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 rounded-xl" />
+              <Input type="email" placeholder="admin@digitalsoft.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 bg-white/4 border-white/10 text-white placeholder:text-white/20 rounded-xl" />
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-white/50 text-xs uppercase tracking-widest font-medium">Password</Label>
-              <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 rounded-xl" />
+              <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 bg-white/4 border-white/10 text-white placeholder:text-white/20 rounded-xl" />
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full h-11 rounded-xl mt-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-90 text-white font-medium shadow-indigo-500/20 transition-all">
+            <Button type="submit" disabled={isLoading} className="w-full h-11 rounded-xl mt-2 bg-linear-to-r from-indigo-500 to-violet-600 hover:opacity-90 text-white font-medium shadow-indigo-500/20 transition-all">
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue →"}
             </Button>
 

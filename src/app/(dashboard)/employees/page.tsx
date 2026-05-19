@@ -77,18 +77,18 @@ export default function EmployeesPage() {
         className="bg-[#0d0d18] border border-white/5 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-b border-white/5 bg-white/[0.01]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-b border-white/5 bg-white/1">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
             <input
               placeholder="Search directory..."
-              className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
+              className="w-full bg-white/3 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <select
-            className="appearance-none w-full sm:w-[160px] bg-white/[0.03] border border-white/10 rounded-xl pl-4 pr-10 py-2.5 text-sm text-white/60 focus:outline-none"
+            className="appearance-none w-full sm:w-40 bg-white/3 border border-white/10 rounded-xl pl-4 pr-10 py-2.5 text-sm text-white/60 focus:outline-none"
             style={{ backgroundImage: chevron, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -104,15 +104,15 @@ export default function EmployeesPage() {
         <div className="overflow-x-auto flex-1">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-white/[0.02]">
+              <tr className="bg-white/2">
                 {["Name", "Role", "Email", "Status", isAdmin ? "Actions" : ""].map((h) => (
                   <th key={h} className="text-left px-6 py-4 text-white/25 text-[10px] uppercase tracking-[0.15em] font-bold border-b border-white/5">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.03]">
+            <tbody className="divide-y divide-white/3">
               {paginatedData.map((emp, i) => (
-                <tr key={emp.id} className="group hover:bg-white/[0.01] transition-colors">
+                <tr key={emp.id} className="group hover:bg-white/1 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${avatarColors[i % avatarColors.length]}`}>
@@ -145,7 +145,7 @@ export default function EmployeesPage() {
         </div>
 
         {/* --- PAGINATION CONTROLS --- */}
-        <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
+        <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/1">
           <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">
             Showing {paginatedData.length} of {filtered.length} staff
           </p>
