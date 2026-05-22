@@ -40,7 +40,8 @@ export default function DashboardPage() {
   }
 
   // Chart data still uses mock for now (you can make this dynamic later)
-  const chartData = getDashboardData(currentTenant.id).chart;
+ // Use optional chaining or the ! operator
+const chartData = currentTenant ? getDashboardData(currentTenant.id).chart : [];
 
   return (
     <div className="p-8 min-h-screen bg-[#07070f] space-y-10">
