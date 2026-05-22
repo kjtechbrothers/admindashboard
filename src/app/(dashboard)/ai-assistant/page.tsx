@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Sparkles, Wand2, Loader2, Bot, User, Zap, BrainCircuit } from "lucide-react";
+import { Send, Sparkles, Wand2, Loader2, Bot, Zap } from "lucide-react";
 import { useTenantStore } from "@/src/store/use-tenant-store";
-import { useAuthStore } from "@/src/store/use-auth-store"; // For user initials
+import { useAuthStore } from "@/src/store/use-auth-store";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
@@ -18,11 +18,11 @@ export default function AIAssistantPage() {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  // Starting with an initial greeting based on the current tenant
-  const [messages, setMessages] = useState<Message[]>([
+  // 1. Logic to handle the initial greeting safely
+  const [messages, setMessages] = useState<Message[]>(() => [
     { 
       role: 'ai', 
-      content: `Neural Engine online for ${currentTenant.name}. Greetings, ${user?.name || 'Administrator'}. How can I assist with your data analysis today?` 
+      content: `Neural Engine online. How can I assist with your data analysis today?` 
     }
   ]);
 
@@ -32,46 +32,55 @@ export default function AIAssistantPage() {
     "Predict next month's revenue",
   ];
 
-  // Logic to process the query
+  // 2. Full-Stack handleAnalyze Function
   const handleAnalyze = async (text: string = query) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || !currentTenant) return;
 
-    // 1. Add user message using functional update (Best Practice)
     setMessages(prev => [...prev, { role: "user", content: text }]);
     setQuery("");
     setIsLoading(true);
 
-    // Simulate AI Processing delay
-    setTimeout(() => {
-      let response = "";
-      const input = text.toLowerCase();
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: text,
+          tenantId: currentTenant.id,
+          role: user?.role
+        }),
+      });
 
-      // Context-aware logic based on current tenant
-      if (input.includes("sales") || input.includes("revenue")) {
-        response = `Intelligence Report [${currentTenant.name}]: Revenue is currently $${currentTenant.id === "smart" ? "120,500" : "45,200"}. 4% variance detected due to supply chain delays. I recommend checking the delivery status.`;
-      } else if (input.includes("employee") || input.includes("performance")) {
-        response = `Workforce Analysis: ${currentTenant.name} has 4 active staff nodes. System efficiency is at 94%. One member is currently on leave (Bob Smith).`;
-      } else {
-        response = `Environment Scan for ${currentTenant.name} complete. All sectors operational. Data throughput remains within projected quarterly baseline.`;
-      }
-
-      // 2. Add AI response using functional update to prevent overwriting
-      setMessages(prev => [...prev, { role: "ai", content: response }]);
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: "ai", content: data.response }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { role: "ai", content: "Error: Connection to Neural Core lost." }]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
+
+  // 3. Guard Clause: Prevent "Possibly Null" errors
+  if (!currentTenant) {
+    return (
+      <div className="h-screen w-full bg-[#07070f] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 text-indigo-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#07070f] p-4 md:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto space-y-10">
 
         {/* --- Header Section --- */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           <div className="flex items-center justify-center gap-2 text-indigo-400 mb-2">
             <Zap className="h-4 w-4 fill-current" />
             <span className="text-[10px] uppercase tracking-[0.3em] font-black italic">Neural Intelligence Core</span>
           </div>
-          <h2 className="text-white text-4xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
+          {/* FIXED: Removed text-white conflict with text-transparent */}
+          <h2 className="text-4xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-white/40">
             AI Assistant
           </h2>
           <p className="text-white/40 text-sm mt-2">
@@ -79,10 +88,9 @@ export default function AIAssistantPage() {
           </p>
         </motion.div>
 
-        {/* --- Interaction Input Area --- */}
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="relative group">
-          {/* Subtle Outer Glow */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000" />
+        {/* --- Interaction Area --- */}
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative group">
+          <div className="absolute -inset-1 bg-linear-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000" />
           
           <div className="relative bg-[#0d0d18] border border-white/10 rounded-2xl p-6 shadow-2xl">
             <div className="relative flex gap-3">
@@ -90,7 +98,7 @@ export default function AIAssistantPage() {
                 <Wand2 className="h-5 w-5 text-indigo-400/50" />
               </div>
               <input 
-                className="w-full bg-white/[0.03] border border-white/5 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                className="w-full bg-white/3 border border-white/5 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
                 placeholder="Ask anything about your business data..." 
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -105,14 +113,13 @@ export default function AIAssistantPage() {
               </button>
             </div>
 
-            {/* Suggestions Chips */}
             <div className="flex flex-wrap gap-2 mt-6 justify-center">
               {suggestions.map((s) => (
                 <button
                   key={s}
                   onClick={() => handleAnalyze(s)}
                   disabled={isLoading}
-                  className="text-[10px] uppercase tracking-widest font-bold text-white/30 hover:text-indigo-300 bg-white/[0.02] hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/30 transition-all px-4 py-2 rounded-full disabled:opacity-20 active:scale-95"
+                  className="text-[10px] uppercase tracking-widest font-bold text-white/30 hover:text-indigo-300 bg-white/2 hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/30 transition-all px-4 py-2 rounded-full disabled:opacity-20 active:scale-95"
                 >
                   {s}
                 </button>
@@ -121,7 +128,7 @@ export default function AIAssistantPage() {
           </div>
         </motion.div>
 
-        {/* --- Chat History Feed --- */}
+        {/* --- Chat Feed --- */}
         <div className="space-y-6 pb-20">
           <AnimatePresence mode="popLayout">
             {messages.map((msg, i) => (
@@ -131,15 +138,12 @@ export default function AIAssistantPage() {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 className={`flex gap-5 p-6 rounded-3xl border transition-all ${
                   msg.role === 'ai' 
-                    ? 'bg-indigo-500/[0.03] border-indigo-500/10 shadow-[0_0_50px_-12px_rgba(99,102,241,0.05)]' 
-                    : 'bg-white/[0.01] border-white/5 ml-4 sm:ml-12'
+                    ? 'bg-indigo-500/3 border-indigo-500/10' 
+                    : 'bg-white/1 border-white/5 ml-4 sm:ml-12'
                 }`}
               >
-                {/* Avatar with dynamic initials for user */}
-                <div className={`h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 shadow-inner border ${
-                  msg.role === 'ai' 
-                  ? 'bg-indigo-500 border-indigo-400 text-white' 
-                  : 'bg-white/5 border-white/10 text-white/40 font-bold text-xs'
+                <div className={`h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                  msg.role === 'ai' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/40 font-bold text-xs'
                 }`}>
                   {msg.role === 'ai' ? <Bot className="h-5 w-5" /> : (user?.name?.charAt(0) || 'U')}
                 </div>
@@ -156,10 +160,9 @@ export default function AIAssistantPage() {
             ))}
           </AnimatePresence>
 
-          {/* Animated Thinking State */}
           {isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex gap-5 p-6 rounded-3xl border border-indigo-500/10 bg-indigo-500/[0.02] ml-4 animate-pulse">
+              className="flex gap-5 p-6 rounded-3xl border border-indigo-500/10 bg-indigo-500/2 ml-4 animate-pulse">
               <div className="h-10 w-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/10 flex items-center justify-center shrink-0">
                 <Loader2 className="h-5 w-5 animate-spin text-indigo-400/50" />
               </div>
@@ -170,7 +173,6 @@ export default function AIAssistantPage() {
             </motion.div>
           )}
         </div>
-
       </div>
     </div>
   );

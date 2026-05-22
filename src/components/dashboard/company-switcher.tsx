@@ -2,11 +2,12 @@
 
 import { Check, ChevronsUpDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { useTenantStore, COMPANIES } from "../../store/use-tenant-store";
+import { useTenantStore } from "../../store/use-tenant-store";
 
 export function CompanySwitcher() {
-  const { currentTenant, setTenant } = useTenantStore();
+  const { currentTenant, setTenant, tenants } = useTenantStore();
 
+  if (!currentTenant) return null;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,13 +26,13 @@ export function CompanySwitcher() {
         align="start"
       >
         <p className="text-white/30 text-[10px] uppercase tracking-widest px-2 py-1.5 font-medium">Switch workspace</p>
-        {COMPANIES.map((company) => {
+        {tenants.map((company) => {
           const active = currentTenant.id === company.id;
           return (
             <DropdownMenuItem
               key={company.id}
               onSelect={() => setTenant(company.id)}
-              className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer data-[highlighted]:bg-white data-[highlighted]:text-white text-white/60"
+              className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer data-highlighted:bg-white data-highlighted:text-indigo-400 text-white/60 transition-colors"
             >
               <span className="text-base leading-none">{company.logo}</span>
               <span className={`flex-1 text-sm ${active ? "text-white font-semibold" : ""}`}>

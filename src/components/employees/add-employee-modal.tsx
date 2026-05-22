@@ -16,22 +16,42 @@ const chevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 export function AddEmployeeModal() {
   const addEmployee = useEmployeeStore((s) => s.addEmployee);
   const { currentTenant } = useTenantStore();
+  
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", role: "", status: "Active" as const });
 
-  const set = (k: string, v: string) => setFormData(p => ({ ...p, [k]: v }));
+  // 1. Unified State inside the component
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    email: "", 
+    role: "", 
+    status: "Active" as "Active" | "On Leave" | "Terminated",
+    password: "" 
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 2. Helper function to update fields
+  const updateField = (key: string, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentTenant) return;
+    
     setIsLoading(true);
-    setTimeout(() => {
-      addEmployee(formData, currentTenant.id);
-      setIsLoading(false);
+    
+    try {
+      await addEmployee(formData, currentTenant.id);
+      toast.success(`Staff profile created for ${currentTenant.name}`);
+      
+      // 3. Reset form and close modal
+      setFormData({ name: "", email: "", role: "", status: "Active", password: "" });
       setOpen(false);
-      toast.success(`Added to ${currentTenant.name}`);
-      setFormData({ name: "", email: "", role: "", status: "Active" });
-    }, 800);
+    } catch (error) {
+      toast.error("Failed to sync with cloud.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,30 +64,47 @@ export function AddEmployeeModal() {
 
       <DialogContent className="bg-[#0d0d18] border border-white/10 text-white rounded-2xl sm:max-w-md shadow-2xl shadow-black/50">
         <DialogHeader>
-          <DialogTitle className="text-white text-lg font-bold tracking-tight">Create Staff Profile</DialogTitle>
-          <p className="text-white/30 text-xs mt-1">Assigning to <span className="text-indigo-400 font-medium">{currentTenant.name}</span></p>
+          <DialogTitle className="text-white text-lg font-bold tracking-tight text-left">Create Staff Profile</DialogTitle>
+          <p className="text-white/30 text-xs mt-1 text-left">
+            Registering to <span className="text-indigo-400 font-medium">{currentTenant?.name}</span>
+          </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           <div className="space-y-2">
             <label className={labelCls}>Full Name</label>
-            <input className={inputCls} placeholder="John Doe" required value={formData.name} onChange={e => set("name", e.target.value)} />
+            <input className={inputCls} placeholder="John Doe" required value={formData.name} onChange={e => updateField("name", e.target.value)} />
           </div>
+
           <div className="space-y-2">
-            <label className={labelCls}>Email</label>
-            <input className={inputCls} type="email" placeholder="john@company.com" required value={formData.email} onChange={e => set("email", e.target.value)} />
+            <label className={labelCls}>Email Address</label>
+            <input className={inputCls} type="email" placeholder="john@company.com" required value={formData.email} onChange={e => updateField("email", e.target.value)} />
           </div>
+
           <div className="space-y-2">
-            <label className={labelCls}>Role</label>
-            <input className={inputCls} placeholder="Frontend Developer" required value={formData.role} onChange={e => set("role", e.target.value)} />
+            <label className={labelCls}>Designation / Role</label>
+            <input className={inputCls} placeholder="Frontend Developer" required value={formData.role} onChange={e => updateField("role", e.target.value)} />
           </div>
+
+          {/* PASSWORD FIELD ADDED HERE */}
           <div className="space-y-2">
-            <label className={labelCls}>Status</label>
-            {/* APPLIED CUSTOM DESIGN HERE */}
+            <label className={labelCls}>Access Password</label>
+            <input 
+              type="password"
+              className={inputCls} 
+              placeholder="Set login password" 
+              required 
+              value={formData.password} 
+              onChange={e => updateField("password", e.target.value)} 
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className={labelCls}>Employment Status</label>
             <select 
               className={inputCls} 
               value={formData.status} 
-              onChange={e => set("status", e.target.value)}
+              onChange={e => updateField("status", e.target.value)}
               style={{ 
                 backgroundImage: chevron, 
                 backgroundRepeat: "no-repeat", 
@@ -85,7 +122,7 @@ export function AddEmployeeModal() {
             disabled={isLoading}
             className="w-full bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white text-xs uppercase tracking-widest font-bold py-3.5 rounded-xl transition-all mt-4 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/10 active:scale-[0.98]"
           >
-            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : "Add to Directory"}
+            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Synchronizing...</> : "Add to Directory"}
           </button>
         </form>
       </DialogContent>

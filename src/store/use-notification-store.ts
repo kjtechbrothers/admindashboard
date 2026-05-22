@@ -1,32 +1,47 @@
 import { create } from 'zustand';
+import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 
-// 1. Update the Interface
 interface Notification {
   id: string;
-  tenantId: string; // Add this line
+  tenant_id: string;
   message: string;
-  time: string;
+  created_at: string;
 }
 
 interface NotificationState {
   notifications: Notification[];
-  addNotification: (message: string, tenantId: string) => void;
+  isLoading: boolean;
+  fetchNotifications: (tenantId: string) => Promise<void>;
+  addNotification: (message: string, tenantId: string) => Promise<void>;
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
-  // 2. Add tenantId to your initial mock notification
-  notifications: [
-    { id: '1', tenantId: 'alpha', message: 'Welcome to Alpha Traders Dashboard', time: 'Just now' }
-  ],
-  addNotification: (message, tenantId) => {
-    const newNoti = { 
-      id: Date.now().toString(), 
-      tenantId, // Store the company ID
-      message, 
-      time: 'Just now' 
-    };
-    set((state) => ({ notifications: [newNoti, ...state.notifications] }));
-    toast.success(message);
+  notifications: [],
+  isLoading: false,
+
+  // 1. Fetch history from Database
+  fetchNotifications: async (tenantId) => {
+    set({ isLoading: true });
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .order('created_at', { ascending: false });
+
+    if (!error) set({ notifications: data || [], isLoading: false });
+  },
+
+  // 2. Add new notification to Database
+  addNotification: async (message, tenantId) => {
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([{ message, tenant_id: tenantId }])
+      .select();
+
+    if (!error && data) {
+      set((state) => ({ notifications: [data[0], ...state.notifications] }));
+      toast.success(message);
+    }
   },
 }));

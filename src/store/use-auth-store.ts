@@ -1,12 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-// 1. Define the Master Admin credentials
-const ADMIN_USER = {
-  email: "admin@digitalsoft.com",
-  password: "admin123", // In a real app, this would be hashed in a DB
-  name: "Kashif (Admin)",
-};
+import { supabase } from '../lib/supabase';
 
 interface User {
   name: string;
@@ -17,7 +11,6 @@ interface User {
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  // Update: Login now takes password and returns a boolean/throws error
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -27,27 +20,44 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      login: async (email, password) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // 2. Validate against our Master Admin
-        if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
+      login: async (email, password) => {
+        // 1. FIRST: Check the PROFILES table (For Master Admins)
+        const { data: adminData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', email)
+          .single();
+
+        if (adminData && adminData.password === password) {
           set({ 
-            user: { name: ADMIN_USER.name, email, role: "Admin" }, 
+            user: { name: adminData.name, email: adminData.email, role: adminData.role }, 
             isAuthenticated: true 
           });
-        }   else if (email === "viewer@digitalsoft.com" && password === "viewer123") {
-         set({ user: { name: "Guest Viewer", email, role: "Viewer" }, isAuthenticated: true });
-       }
-        else {
-          // 3. Throw an error if credentials don't match
-          throw new Error("Invalid email or password");
+          return; // Login successful, stop here
         }
+
+        // 2. SECOND: Check the EMPLOYEES table (For Staff Members)
+        const { data: staffData } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('email', email)
+          .single();
+
+        if (staffData && staffData.password === password) {
+          set({ 
+            user: { name: staffData.name, email: staffData.email, role: 'Viewer' }, 
+            isAuthenticated: true 
+          });
+          return; // Login successful, stop here
+        }
+
+        // 3. IF NEITHER MATCH: Throw error
+        throw new Error("Access Denied: Invalid credentials.");
       },
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
-        // Clear local storage if needed
-      },
+
+      // FIXED: logout must set isAuthenticated to false
+      logout: () => set({ user: null, isAuthenticated: false }),
     }),
     { name: 'auth-storage' }
   )

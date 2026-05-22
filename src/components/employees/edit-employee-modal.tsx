@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useEmployeeStore } from "@/src/store/use-employee-store";
 import { Employee } from "@/src/types/employee";
 import { toast } from "sonner";
+
 
 const inputCls = "w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-indigo-500/40 transition-all appearance-none";
 const labelCls = "text-white/50 text-[10px] uppercase tracking-[0.2em] font-bold";
@@ -16,6 +17,7 @@ export function EditEmployeeModal({ employee, open, setOpen }: { employee: Emplo
   const updateEmployee = useEmployeeStore((s) => s.updateEmployee);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(employee);
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => { 
     setFormData(employee); 
@@ -36,12 +38,6 @@ export function EditEmployeeModal({ employee, open, setOpen }: { employee: Emplo
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* 
-          FIXED RESPONSIVE CLASSES BELOW:
-          - w-[92vw]: Takes 92% of screen width on mobile
-          - sm:w-full sm:max-w-md: Reverts to standard width on larger screens
-          - max-h-[90vh]: Prevents the modal from being taller than the screen
-      */}
       <DialogContent className="bg-[#0d0d18] border border-white/10 text-white rounded-2xl w-[92vw] max-w-[425px] sm:w-full shadow-2xl shadow-black/50 overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-white text-lg font-bold tracking-tight text-left">Update Staff Profile</DialogTitle>
@@ -60,6 +56,25 @@ export function EditEmployeeModal({ employee, open, setOpen }: { employee: Emplo
           <div className="space-y-2">
             <label className={labelCls}>Role / Designation</label>
             <input className={inputCls} value={formData.role} onChange={e => set("role", e.target.value)} required />
+          </div>
+            <div className="space-y-2">
+            <label className={labelCls}>Access Password</label>
+            <div className="relative">
+              <input 
+                type={showPass ? "text" : "password"}
+                className={inputCls + " pr-10"} 
+                value={formData.password || ""} 
+                onChange={e => setFormData({...formData, password: e.target.value})} 
+                required 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
+              >
+                {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
           </div>
           <div className="space-y-2">
             <label className={labelCls}>Employment Status</label>

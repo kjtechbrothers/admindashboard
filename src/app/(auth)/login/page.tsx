@@ -7,8 +7,9 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Key } from "lucide-react";
+import { Loader2, Key, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +79,23 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <Label className="text-white/50 text-xs uppercase tracking-widest font-medium">Password</Label>
-              <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 bg-white/4 border-white/10 text-white placeholder:text-white/20 rounded-xl" />
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  required 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="h-11 bg-white/4 border-white/10 text-white placeholder:text-white/20 rounded-xl" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full h-11 rounded-xl mt-2 bg-linear-to-r from-indigo-500 to-violet-600 hover:opacity-90 text-white font-medium shadow-indigo-500/20 transition-all">
@@ -86,25 +104,6 @@ export default function LoginPage() {
 
             <button type="button" onClick={handleForgotPassword} className="w-full text-center text-xs text-white/25 hover:text-white/50 transition-colors pt-1">Forgot password?</button>
           </form>
-
-          {/* UNIFIED ACCESS KEYS BOX - DESIGN ENHANCED */}
-          <div className="mt-10 p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-md">
-            <div className="flex items-center gap-2 mb-3 text-indigo-400">
-              <Key size={14} />
-              <p className="text-[10px] uppercase tracking-[0.2em] font-black">Access Keys</p>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] text-white/30 font-bold uppercase">Admin Role</span>
-                <span className="text-[11px] text-indigo-200/60 font-mono">admin@digitalsoft.com / admin123</span>
-              </div>
-              <div className="w-full h-px bg-white/5" />
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] text-white/30 font-bold uppercase">Viewer Role</span>
-                <span className="text-[11px] text-indigo-200/60 font-mono">viewer@digitalsoft.com / viewer123</span>
-              </div>
-            </div>
-          </div>
         </motion.div>
       </div>
     </div>
