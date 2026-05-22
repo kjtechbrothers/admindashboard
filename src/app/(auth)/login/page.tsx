@@ -58,7 +58,9 @@ export default function LoginPage() {
           <h2 className="text-4xl font-bold text-white leading-tight tracking-tight mb-4">Everything your<br /><span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-violet-400">business needs.</span></h2>
           <p className="text-white/40 text-sm leading-relaxed max-w-xs">Multi-tenant cloud ERP with real-time analytics, AI insights, and role-based access — all in one place.</p>
         </motion.div>
-        <p className="relative z-10 text-white/20 text-xs">© 2025 DigitalSoft Cloud</p>
+        <p className="relative z-10 text-white/20 text-xs">
+          © {new Date().getFullYear()} DigitalSoft Cloud
+        </p>
       </div>
 
       {/* RIGHT — form */}

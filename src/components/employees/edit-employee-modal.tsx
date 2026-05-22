@@ -38,7 +38,7 @@ export function EditEmployeeModal({ employee, open, setOpen }: { employee: Emplo
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-[#0d0d18] border border-white/10 text-white rounded-2xl w-[92vw] max-w-[425px] sm:w-full shadow-2xl shadow-black/50 overflow-y-auto max-h-[90vh]">
+      <DialogContent className="bg-[#0d0d18] border border-white/10 text-white rounded-2xl w-[92vw] max-w-106.25 sm:w-full shadow-2xl shadow-black/50 overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-white text-lg font-bold tracking-tight text-left">Update Staff Profile</DialogTitle>
           <p className="text-white/30 text-xs mt-1 text-left">Modifying record for ID: <span className="text-indigo-400 font-mono">{employee.id.slice(0, 8)}</span></p>
